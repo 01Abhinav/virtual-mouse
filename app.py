@@ -6,8 +6,8 @@ import autopy   # Install using "pip install autopy"
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
-width = 640             # Width of Camera
-height = 480            # Height of Camera
+width = 1024            # Width of Camera
+height = 720            # Height of Camera
 frameR = 100            # Frame Rate
 smoothening = 8         # Smoothening Factor
 prev_x, prev_y = 0, 0   # Previous coordinates
@@ -44,13 +44,9 @@ while True:
         if fingers[1] == 1 :     # If fore finger & middle finger both are up
             length, img, lineInfo = detector.findDistance(12, 4, img)
 
-            if length < 30:     # If both fingers are really close to each other
+            if length < 40:     # If both fingers are really close to each other
                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                 autopy.mouse.click()    # Perform Click
 
-    cTime = time.time()
-    fps = 1/(cTime-pTime)
-    pTime = cTime
-    cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
     cv2.imshow("Image", img)
     cv2.waitKey(1)
