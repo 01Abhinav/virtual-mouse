@@ -2,9 +2,8 @@ import cv2
 import numpy as np
 import time
 import utils as ht
-import autopy   # Install using "pip install autopy"
+import autopy 
 
-### Variables Declaration
 pTime = 0               # Used to calculate frame rate
 width = 1024            # Width of Camera
 height = 720            # Height of Camera
@@ -20,17 +19,17 @@ cap.set(4, height)
 detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
 screen_width, screen_height = autopy.screen.size()      # Getting the screen size
 while True:
-    success, img = cap.read()
+    _, img = cap.read()
     img = detector.findHands(img)                       # Finding the hand
     lmlist, bbox = detector.findPosition(img)           # Getting position of hand
 
     if len(lmlist)!=0:
-        x1, y1 = lmlist[12][1:]
-        x2, y2 = lmlist[4][1:]
+        x1, y1 = lmlist[12][1:]                         # getting position of middle finger
+        x2, y2 = lmlist[4][1:]                          # getting position of thumb
 
         fingers = detector.fingersUp()      # Checking if fingers are upwards
-        cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
-        if fingers[1] == 1:     # If fore finger is up and middle finger is down
+        #cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
+        if fingers[1] == 1:     # If fore finger is up
             x3 = np.interp(x1, (frameR,width-frameR), (0,screen_width))
             y3 = np.interp(y1, (frameR, height-frameR), (0, screen_height))
 
@@ -38,7 +37,7 @@ while True:
             curr_y = prev_y + (y3 - prev_y) / smoothening
 
             autopy.mouse.move(screen_width - curr_x, curr_y)    # Moving the cursor
-            cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
+            #cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
             length, img, lineInfo = detector.findDistance(12, 4, img)
 
