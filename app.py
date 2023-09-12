@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import time
-import main as ht
+import utils as ht
 import autopy   # Install using "pip install autopy"
 
 ### Variables Declaration
