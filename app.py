@@ -4,46 +4,48 @@ import time
 import utils as ht
 import autopy 
 
-pTime = 0               # Used to calculate frame rate
-width = 1024            # Width of Camera
-height = 720            # Height of Camera
-frameR = 100            # Frame Rate
-smoothening = 8         # Smoothening Factor
-prev_x, prev_y = 0, 0   # Previous coordinates
-curr_x, curr_y = 0, 0   # Current coordinates
 
-cap = cv2.VideoCapture(0)   # Getting video feed from the webcam
-cap.set(3, width)           # Adjusting size
-cap.set(4, height)
+if __name__ == "__main__":
+    pTime = 0               # Used to calculate frame rate
+    width = 1024            # Width of Camera
+    height = 720            # Height of Camera
+    frameR = 100            # Frame Rate
+    smoothening = 8         # Smoothening Factor
+    prev_x, prev_y = 0, 0   # Previous coordinates
+    curr_x, curr_y = 0, 0   # Current coordinates
 
-detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
-screen_width, screen_height = autopy.screen.size()      # Getting the screen size
-while True:
-    _, img = cap.read()
-    img = detector.findHands(img)                       # Finding the hand
-    lmlist, bbox = detector.findPosition(img)           # Getting position of hand
+    cap = cv2.VideoCapture(0)   # Getting video feed from the webcam
+    cap.set(3, width)           # Adjusting size
+    cap.set(4, height)
 
-    if len(lmlist)!=0:
-        x1, y1 = lmlist[12][1:]                         # getting position of middle finger
-        x2, y2 = lmlist[4][1:]                          # getting position of thumb
+    detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
+    screen_width, screen_height = autopy.screen.size()      # Getting the screen size
+    while True:
+        _, img = cap.read()
+        img = detector.findHands(img)                       # Finding the hand
+        lmlist, bbox = detector.findPosition(img)           # Getting position of hand
 
-        fingers = detector.fingersUp()      # Checking if fingers are upwards
-        #cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
-        if fingers[1] == 1:     # If fore finger is up
-            x3 = np.interp(x1, (frameR,width-frameR), (0,screen_width))
-            y3 = np.interp(y1, (frameR, height-frameR), (0, screen_height))
+        if len(lmlist)!=0:
+            x1, y1 = lmlist[12][1:]                         # getting position of middle finger
+            x2, y2 = lmlist[4][1:]                          # getting position of thumb
 
-            curr_x = prev_x + (x3 - prev_x)/smoothening
-            curr_y = prev_y + (y3 - prev_y) / smoothening
+            fingers = detector.fingersUp()      # Checking if fingers are upwards
+            #cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
+            if fingers[1] == 1:     # If fore finger is up
+                x3 = np.interp(x1, (frameR,width-frameR), (0,screen_width))
+                y3 = np.interp(y1, (frameR, height-frameR), (0, screen_height))
 
-            autopy.mouse.move(screen_width - curr_x, curr_y)    # Moving the cursor
-            #cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
-            prev_x, prev_y = curr_x, curr_y
-            length, img, lineInfo = detector.findDistance(12, 4, img)
+                curr_x = prev_x + (x3 - prev_x)/smoothening
+                curr_y = prev_y + (y3 - prev_y) / smoothening
 
-            if length < 40:     # If both fingers are really close to each other
-                cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                autopy.mouse.click()    # Perform Click
+                autopy.mouse.move(screen_width - curr_x, curr_y)    # Moving the cursor
+                #cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
+                prev_x, prev_y = curr_x, curr_y
+                length, img, lineInfo = detector.findDistance(12, 4, img)
 
-    cv2.imshow("Image", img)
-    cv2.waitKey(1)
+                if length < 40:     # If both fingers are really close to each other
+                    cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
+                    autopy.mouse.click()    # Perform Click
+
+        cv2.imshow("Image", img)
+        cv2.waitKey(1)
